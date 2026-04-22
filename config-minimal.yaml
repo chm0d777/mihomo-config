@@ -1,0 +1,353 @@
+# ═══════════════════════════════════════════════════════════════
+# mihomo config-minimal by chm0d777
+# Основа: legiz (проверенный) + proxy-providers + AI/соцсети
+# GitHub: https://github.com/chm0d777/mihomo-config
+# ═══════════════════════════════════════════════════════════════
+
+mode: rule
+log-level: info
+mixed-port: 7890
+allow-lan: false
+tcp-concurrent: true
+enable-process: true
+find-process-mode: always
+unified-delay: true
+ipv6: false
+
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+# Sniffer — как в legiz (без TUN, чтобы не было loopback)
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+
+# DNS — как в legiz (redir-host, Yandex DoT для резолвинга)
+dns:
+  enable: true
+  prefer-h3: true
+  use-hosts: true
+  use-system-hosts: true
+  listen: 127.0.0.1:6868
+  ipv6: false
+  enhanced-mode: redir-host
+  default-nameserver:
+    - tls://77.88.8.8#DIRECT
+    - 195.208.4.1#DIRECT
+    - system
+  proxy-server-nameserver:
+    - tls://77.88.8.8#DIRECT
+    - 195.208.4.1#DIRECT
+    - system
+  direct-nameserver:
+    - tls://77.88.8.8#DIRECT
+    - 195.208.4.1#DIRECT
+    - system
+  nameserver:
+    - https://cloudflare-dns.com/dns-query#PROXY
+
+# ═══════════════════════════════════════════════════════════════
+# VPN серверы — импорт из vpn.yaml (не публикуется на GitHub)
+# ═══════════════════════════════════════════════════════════════
+proxies: []
+
+proxy-providers:
+  vpn-servers:
+    type: file
+    path: ./vpn.yaml
+    health-check:
+      enable: true
+      url: https://cp.cloudflare.com/generate_204
+      interval: 300
+
+# ═══════════════════════════════════════════════════════════════
+# Proxy Groups
+# ═══════════════════════════════════════════════════════════════
+proxy-groups:
+  # Главный — все серверы
+  - name: 🌍 VPN
+    icon: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hijacking.png
+    type: select
+    use: [vpn-servers]
+    proxies:
+      - ⚡ Fastest
+      - DIRECT
+
+  # YouTube — можно поставить Сбер (низкий пинг)
+  - name: ▶️ YouTube
+    icon: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/YouTube.png
+    type: select
+    use: [vpn-servers]
+    proxies:
+      - 🌍 VPN
+      - DIRECT
+
+  # Discord — можно поставить Сбер
+  - name: 💬 Discord
+    icon: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Discord.png
+    type: select
+    use: [vpn-servers]
+    proxies:
+      - 🌍 VPN
+      - DIRECT
+
+  # Telegram
+  - name: ➤ Telegram
+    icon: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Telegram.png
+    type: select
+    use: [vpn-servers]
+    proxies:
+      - 🌍 VPN
+      - DIRECT
+
+  # AI — только НЕ-RU серверы (Сбер не работает с ChatGPT/Claude)
+  - name: 🤖 AI
+    icon: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Bot.png
+    type: select
+    use: [vpn-servers]
+    filter: "^(?!.*Сбер).*$"
+    proxies:
+      - ⚡ Fastest
+      - 🌍 VPN
+
+  # Соцсети (Instagram, Facebook, Twitter) — только НЕ-RU серверы
+  - name: 📱 Соцсети
+    icon: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Social.png
+    type: select
+    use: [vpn-servers]
+    filter: "^(?!.*Сбер).*$"
+    proxies:
+      - ⚡ Fastest
+      - 🌍 VPN
+
+  # WhatsApp
+  - name: ➤ WhatsApp
+    icon: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Facebook.png
+    type: select
+    use: [vpn-servers]
+    proxies:
+      - 🌍 VPN
+      - DIRECT
+
+  # Автовыбор самого быстрого сервера
+  - name: ⚡ Fastest
+    icon: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png
+    type: url-test
+    hidden: true
+    tolerance: 150
+    url: https://cp.cloudflare.com/generate_204
+    interval: 300
+    use: [vpn-servers]
+
+  # Совместимость
+  - name: PROXY
+    type: select
+    hidden: true
+    proxies:
+      - 🌍 VPN
+
+# ═══════════════════════════════════════════════════════════════
+# Rule Providers
+# ═══════════════════════════════════════════════════════════════
+rule-providers:
+  telegram-ips:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    url: https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geoip/telegram.mrs
+    path: ./rule-sets/telegram-ips.mrs
+    interval: 86400
+  telegram-domains:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/telegram.mrs
+    path: ./rule-sets/telegram-domains.mrs
+    interval: 86400
+  youtube:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/youtube.mrs
+    path: ./rule-sets/youtube.mrs
+    interval: 86400
+  discord_domains:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/discord.mrs
+    path: ./rule-sets/discord_domains.mrs
+    interval: 86400
+  discord_voiceips:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    url: https://github.com/legiz-ru/mihomo-rule-sets/raw/main/other/discord-voice-ip-list.mrs
+    path: ./rule-sets/discord_voiceips.mrs
+    interval: 86400
+  ai:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-ai-!cn.mrs
+    path: ./rule-sets/ai.mrs
+    interval: 86400
+  geosite-openai:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/openai.mrs
+    path: ./rule-sets/openai.mrs
+    interval: 86400
+  geosite-anthropic:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/anthropic.mrs
+    path: ./rule-sets/anthropic.mrs
+    interval: 86400
+  google-gemini:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/google-gemini.mrs
+    path: ./rule-sets/google-gemini.mrs
+    interval: 86400
+  geosite-instagram:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/instagram.mrs
+    path: ./rule-sets/instagram.mrs
+    interval: 86400
+  geosite-facebook:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/facebook.mrs
+    path: ./rule-sets/facebook.mrs
+    interval: 86400
+  facebook-ips:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    url: https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geoip/facebook.mrs
+    path: ./rule-sets/facebook-ips.mrs
+    interval: 86400
+  geosite-twitter:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/twitter.mrs
+    path: ./rule-sets/twitter.mrs
+    interval: 86400
+  whatsapp-domains:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/whatsapp.mrs
+    path: ./rule-sets/whatsapp-domains.mrs
+    interval: 86400
+  oisd_big:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://github.com/legiz-ru/mihomo-rule-sets/raw/main/oisd/big.mrs
+    path: ./rule-sets/oisd_big.mrs
+    interval: 86400
+  torrent-trackers:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://github.com/legiz-ru/mihomo-rule-sets/raw/main/other/torrent-trackers.mrs
+    path: ./rule-sets/torrent-trackers.mrs
+    interval: 86400
+  torrent-clients:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://github.com/legiz-ru/mihomo-rule-sets/raw/main/other/torrent-clients.yaml
+    path: ./rule-sets/torrent-clients.yaml
+    interval: 86400
+  refilter_domains:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://github.com/legiz-ru/mihomo-rule-sets/raw/main/re-filter/domain-rule.mrs
+    path: ./rule-sets/refilter_domains.mrs
+    interval: 86400
+  refilter_ipsum:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    url: https://github.com/legiz-ru/mihomo-rule-sets/raw/main/re-filter/ip-rule.mrs
+    path: ./rule-sets/refilter_ipsum.mrs
+    interval: 86400
+  ru-bundle:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://github.com/legiz-ru/mihomo-rule-sets/raw/main/ru-bundle/rule.mrs
+    path: ./rule-sets/ru-bundle.mrs
+    interval: 86400
+  my-rules:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/chm0d777/mihomo-config/main/my-rules.yaml
+    path: ./rule-sets/my-rules.yaml
+    interval: 86400
+
+# ═══════════════════════════════════════════════════════════════
+# Rules — порядок важен!
+# ═══════════════════════════════════════════════════════════════
+rules:
+  # IP-чекеры и cloudflare DNS → через VPN (чтобы показывал VPN-IP)
+  - OR,((DOMAIN,ipwhois.app),(DOMAIN,ipwho.is),(DOMAIN,api.ip.sb),(DOMAIN,ipapi.co),(DOMAIN,ipinfo.io),(DOMAIN,ip-api.com),(DOMAIN,cloudflare-dns.com),(DOMAIN,2ip.io)),🌍 VPN
+
+  # Блокировка рекламы
+  - RULE-SET,oisd_big,REJECT
+
+  # Торренты → DIRECT
+  - OR,((RULE-SET,torrent-clients),(RULE-SET,torrent-trackers)),DIRECT
+
+  # YouTube
+  - RULE-SET,youtube,▶️ YouTube
+
+  # Telegram
+  - OR,((RULE-SET,telegram-ips),(RULE-SET,telegram-domains)),➤ Telegram
+
+  # Discord
+  - OR,((RULE-SET,discord_domains),(RULE-SET,discord_voiceips)),💬 Discord
+
+  # AI сервисы (только НЕ-RU через группу 🤖 AI)
+  - RULE-SET,geosite-openai,🤖 AI
+  - RULE-SET,google-gemini,🤖 AI
+  - RULE-SET,geosite-anthropic,🤖 AI
+  - RULE-SET,ai,🤖 AI
+
+  # Соцсети (только НЕ-RU через группу 📱 Соцсети)
+  - OR,((RULE-SET,geosite-instagram),(RULE-SET,geosite-facebook),(RULE-SET,facebook-ips)),📱 Соцсети
+  - RULE-SET,geosite-twitter,📱 Соцсети
+
+  # WhatsApp
+  - RULE-SET,whatsapp-domains,➤ WhatsApp
+
+  # Мои правила
+  - RULE-SET,my-rules,🌍 VPN
+
+  # Заблокированные сайты РФ
+  - RULE-SET,ru-bundle,🌍 VPN
+  - RULE-SET,refilter_domains,🌍 VPN
+  - RULE-SET,refilter_ipsum,🌍 VPN
+
+  # Всё остальное → DIRECT (как у legiz)
+  - MATCH,DIRECT

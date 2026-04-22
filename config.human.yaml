@@ -1,0 +1,262 @@
+mode: rule
+ipv6: false
+log-level: info
+allow-lan: false
+unified-delay: true
+tcp-concurrent: true
+
+# external-controller: 127.0.0.1:9090
+# external-ui: ./ui
+# external-ui-url: "https://github.com/Zephyruso/zashboard/releases/latest/download/dist-cdn-fonts.zip"
+
+# mixed-port: 7890
+# tproxy-port: 7894
+# routing-mark: 2
+
+keep-alive-idle: 15
+keep-alive-interval: 15
+
+profile:
+  store-selected: true
+  tracing: false
+
+dns:
+  enable: true
+  listen: 127.0.0.1:7874
+  ipv6: false
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.0/15
+  fake-ip-filter:
+    - "*.lan"
+    - "*.local"
+    - "+.msftconnecttest.com"
+    - "+.3gppnetwork"
+    - "Mijia Cloud"
+  default-nameserver:
+    - 8.8.8.8
+    - 1.1.1.1
+  nameserver:
+    - https://8.8.8.8/dns-query
+    - https://cloudflare-dns.com/dns-query
+  nameserver-policy:
+    "geosite:ru":
+      - 77.88.8.8
+      - 8.8.8.8
+
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  skip-domain:
+    - "Mijia Cloud"
+    - "+.lan"
+    - "+.local"
+    - "+.push.apple.com"
+    - "+.apple.com"
+    - "+.msftconnecttest.com"
+    - "+.3gppnetwork"
+  skip-dst-address:
+    - 5.28.192.0/18
+    - 91.105.192.0/23
+    - 91.108.4.0/22
+    - 91.108.8.0/21
+    - 91.108.16.0/21
+    - 91.108.56.0/22
+    - 95.161.64.0/20
+    - 109.239.140.0/24
+    - 149.154.160.0/20
+    - 185.76.151.0/24
+
+proxies:
+
+  
+proxy-groups:
+  - name: Proxy
+    type: select
+    proxies:
+      - Нидерланды
+      - Сбер
+      - DIRECT
+
+  - name: YouTube
+    type: select
+    proxies:
+      - Сбер        # по умолчанию Сбер
+      - Нидерланды
+      - DIRECT
+
+  - name: Discord
+    type: select
+    proxies:
+      - Сбер        # по умолчанию Сбер
+      - Нидерланды
+      - DIRECT
+
+  - name: Telegram
+    type: select
+    proxies:
+      - Нидерланды
+      - Сбер
+      - DIRECT
+
+  - name: ChatGPT
+    type: select
+    proxies:
+      - Нидерланды
+      - Сбер
+      - DIRECT
+
+  - name: Gemini
+    type: select
+    proxies:
+      - Нидерланды
+      - Сбер
+      - DIRECT
+
+  - name: Anthropic
+    type: select
+    proxies:
+      - Нидерланды
+      - Сбер
+      - DIRECT
+
+  - name: Instagram
+    type: select
+    proxies:
+      - Нидерланды
+      - Сбер
+      - DIRECT
+
+  - name: Facebook
+    type: select
+    proxies:
+      - Нидерланды
+      - Сбер
+      - DIRECT
+
+  - name: Twitter
+    type: select
+    proxies:
+      - Нидерланды
+      - Сбер
+      - DIRECT
+
+rule-providers:
+  geosite-openai:
+    behavior: domain
+    type: http
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/openai.yaml"
+    interval: 86400
+
+  geosite-google-gemini:
+    behavior: domain
+    type: http
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/google-gemini.yaml"
+    interval: 86400
+
+  geosite-anthropic:
+    behavior: domain
+    type: http
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/anthropic.yaml"
+    interval: 86400
+
+  geosite-instagram:
+    behavior: domain
+    type: http
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/instagram.yaml"
+    interval: 86400
+
+  geosite-facebook:
+    behavior: domain
+    type: http
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/facebook.yaml"
+    interval: 86400
+
+  geosite-whatsapp:
+    behavior: domain
+    type: http
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/whatsapp.yaml"
+    interval: 86400
+
+  geosite-twitter:
+    behavior: domain
+    type: http
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/twitter.yaml"
+    interval: 86400
+
+  geosite-roblox:
+    behavior: domain
+    type: http
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/roblox.yaml"
+    interval: 86400
+
+  telegram:
+    behavior: ipcidr
+    type: http
+    url: "https://raw.githubusercontent.com/123jjck/cdn-ip-ranges/refs/heads/main/telegram/telegram_plain_ipv4.txt"
+    interval: 86400
+    format: text
+
+  ru-blocked:
+    behavior: domain
+    type: http
+    url: "https://cdn.jsdelivr.net/gh/shvchk/unblock-net/lists/clash/ru-blocked"
+    interval: 86400
+    format: text
+
+  opencck-extra:
+    behavior: ipcidr
+    type: http
+    url: "https://iplist.opencck.org/?format=text&data=cidr4&site=copilot&site=aistudio.google.com&site=canva.com&site=deepl.com&site=elevenlabs.io&site=grammarly.com&site=grok.com&site=kilo.ai&site=perplexity.ai&site=pollo.ai&site=amedia.site&site=anidub.pro&site=anilibria.tv&site=animego.org&site=animevost.org&site=bato.to&site=crunchyroll.com&site=hentailib.me&site=jut.su&site=kara.su&site=kodik.info&site=mangahub.ru&site=mangapark.net&site=nyaa.land&site=nyaa.si&site=shikimori.one&site=yummyanime.tv&site=archiveofourown.org&site=danbooru.donmai.us&site=deviantart.com&site=e621.net&site=ficbook.net&site=gelbooru.com&site=hentaichan.live&site=infinitenovel.eu&site=pixiv.net&site=rulate.ru&site=vndb.org&site=younettranslate.com&site=duolingo.com&site=flibusta.is&site=mrakopedia.net&site=refactoring.guru&site=wikiart.org&site=znanija.com&site=aave.com&site=euler.finance&site=morpho.org&site=arma2&site=chess.com&site=itch.io&site=modrinth.com&site=jetbrains.com&site=jetbrains%40cdn&site=jetbrains%40grazie.ai&site=signal.org&site=viber.com&site=zello.com&site=deezer.com&site=last.fm&site=musicbrainz.org&site=soundcloud.com&site=spotify.com&site=tidal.com&site=agents.media&site=agentura.ru&site=bbc.com&site=bellingcat.com&site=cherta.media&site=colta.ru&site=currenttime.tv&site=dept.one&site=doxa.team&site=dw.com&site=echofm.online&site=ehorussia.com&site=ej.ru&site=euronews.com&site=exler.ru&site=golosameriki.com&site=gordonua.com&site=gulagu.net&site=holod.media&site=hrw.org&site=istories.media&site=kasparov.ru&site=kavkaz-uzel.eu&site=korrespondent.net&site=krymr.com&site=meduza.io&site=memohrc.org&site=moscowtimes.ru&site=navalny.com&site=newtimes.ru&site=novayagazeta.ru&site=ovd.info&site=paperpaper.ru&site=polit.ru&site=proekt.media&site=prostovpn.org&site=radiosvoboda.org&site=semnasem.org&site=svoboda.org&site=tayga.info&site=the-village.ru&site=theins.ru&site=thetruestory.news&site=tvrain.ru&site=unian.net&site=verstka.media&site=vot-tak.tv&site=zona.media&site=beeg.com&site=f95zone.to&site=hqporner.com&site=kemono.cr&site=pornhub.com&site=pornolab.net&site=reddxxx.com&site=redgifs.com&site=redtube.com&site=rule34.xxx&site=xhamster.com&site=xhamsterlive.com&site=xnxx-ru.com&site=xvideos.com&site=babook.org&site=ralphlauren.eu&site=cwer.ws&site=hornet.com&site=linkedin.com&site=patreon.com&site=quora.com&site=ru-board.com&site=snapchat.com&site=tiktok.com&site=10minutemail.com&site=9proxy.com&site=autodesk.com&site=basecamp.com&site=beeble.com&site=bestchange.ru&site=capcut.com&site=clickup.com&site=connect.garmin.com&site=fastpic.org&site=fmhy.net&site=linktr.ee&site=make.com&site=medium.com&site=miro.com&site=myheritage.com&site=naukri.com&site=notepad-plus-plus.org&site=notion.so&site=proton.me&site=proxy6.net&site=proxyline.net&site=sankakucomplex.com&site=sentry.io&site=strava.com&site=trainingpeaks.com&site=tuta.com&site=whoop.com&site=wikidot.com&site=zapier.com&site=1337x.to&site=booktracker.org&site=filmitorrent.net&site=freetp.org&site=kinozal.me&site=newstudio.tv&site=nnmclub.to&site=rustorka.com&site=rutor.info&site=rutracker.org&site=thepiratebay.org&site=torrent.by&site=daramalive.life&site=doramy.club&site=filmix.fm&site=hdrezka.ag&site=kino.pub&site=kinobase.org&site=kinovod.pro&site=kinozal.tv&site=lostfilm.tv&site=netflix.com&site=seasonvar.ru&site=themoviedb.org&site=zeflix.online"
+    interval: 86400
+    format: text
+
+  geosite-discord:
+    behavior: domain
+    type: http
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/discord.yaml"
+    interval: 86400
+
+  geosite-youtube:
+    behavior: domain
+    type: http
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/youtube.yaml"
+    interval: 86400
+
+rules:
+  - IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
+  - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+  - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
+  - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
+
+  - DOMAIN-SUFFIX,ru,DIRECT
+  - DOMAIN-SUFFIX,рф,DIRECT
+  - DOMAIN-SUFFIX,su,DIRECT
+
+  # Заблокированные — VPN
+  # YouTube и Discord закомментированы — zapret справляется
+  - RULE-SET,ru-blocked,Proxy
+  - RULE-SET,telegram,Telegram
+  - RULE-SET,geosite-youtube,YouTube
+  - RULE-SET,geosite-discord,Discord
+  - RULE-SET,geosite-instagram,Instagram
+  - RULE-SET,geosite-openai,ChatGPT
+  - RULE-SET,geosite-google-gemini,Gemini
+  - RULE-SET,geosite-anthropic,Anthropic
+  - RULE-SET,geosite-facebook,Facebook
+  - RULE-SET,geosite-whatsapp,Proxy
+  - RULE-SET,geosite-twitter,Twitter
+  - RULE-SET,geosite-roblox,Proxy
+
+  - RULE-SET,opencck-extra,Proxy
+  - GEOIP,RU,DIRECT
+
+  # Всё остальное —не через VPN
+  - MATCH,DIRECT
