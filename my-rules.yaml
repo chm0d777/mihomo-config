@@ -1,5 +1,5 @@
 payload:
-# смайлы FFZ
+- DOMAIN-SUFFIX,kali.org
 # Arch Linux / Pacman обновления
 - DOMAIN-SUFFIX,omarchy.org
 - DOMAIN-SUFFIX,stable-mirror.omarchy.org
