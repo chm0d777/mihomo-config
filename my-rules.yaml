@@ -1,5 +1,6 @@
 payload:
 # смайлы FFZ
+- DOMAIN-SUFFIX,https://www.canirun.ai/
 - DOMAIN-SUFFIX,frankerfacez.com
 - DOMAIN,cdn.frankerfacez.com
 - DOMAIN,cdn2.frankerfacez.com
