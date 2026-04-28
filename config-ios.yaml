@@ -1,0 +1,292 @@
+mode: rule
+log-level: info
+allow-lan: false
+unified-delay: true
+tcp-concurrent: true
+
+# Локальный SOCKS5 прокси для Telegram
+socks-port: 1080
+authentication:
+  - "telegram:telegram"
+
+# Sniffer — чтобы не было петель маршрутизации
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+
+# DNS - надежный fake-ip как в старом конфиге, но с исправлениями
+dns:
+  enable: true
+  listen: 127.0.0.1:6868
+  ipv6: false
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.0/15
+  fake-ip-filter:
+    - "*.lan"
+    - "*.local"
+    - "+.msftconnecttest.com"
+  default-nameserver:
+    - 8.8.8.8
+    - 1.1.1.1
+  nameserver:
+    - https://8.8.8.8/dns-query
+    - https://cloudflare-dns.com/dns-query
+  nameserver-policy:
+    "geosite:category-ru": 
+      - 77.88.8.8
+      - 8.8.8.8
+
+# Пустые заглушки для AWG серверов, куда нужно вписать свои данные
+proxies:
+  - name: Сбер
+    type: wireguard
+    server: 0.0.0.0
+    port: 51820
+    ip: 10.0.0.2
+    public-key: "Впиши_сюда_ключ_Сбера"
+    private-key: "Впиши_сюда_ключ_Сбера"
+    udp: true
+
+  - name: Нидерланды 10гбит
+    type: wireguard
+    server: 0.0.0.0
+    port: 51820
+    ip: 10.0.0.2
+    public-key: "Впиши_сюда_ключ_Нидерландов"
+    private-key: "Впиши_сюда_ключ_Нидерландов"
+    udp: true
+
+  - name: Japan 1гбит
+    type: wireguard
+    server: 0.0.0.0
+    port: 51820
+    ip: 10.0.0.2
+    public-key: "Впиши_сюда_ключ_Японии"
+    private-key: "Впиши_сюда_ключ_Японии"
+    udp: true
+
+proxy-groups:
+  - name: 💬 Discord
+    type: select
+    proxies:
+      - Сбер
+      - Нидерланды 10гбит
+      - Japan 1гбит
+      - DIRECT
+
+  - name: ▶️ YouTube
+    type: select
+    proxies:
+      - Сбер
+      - Нидерланды 10гбит
+      - Japan 1гбит
+      - DIRECT
+
+  - name: 📸 Instagram & Threads
+    type: select
+    proxies:
+      - Нидерланды 10гбит
+      - Japan 1гбит
+      - DIRECT
+
+  - name: 👥 Facebook
+    type: select
+    proxies:
+      - Нидерланды 10гбит
+      - Japan 1гбит
+      - DIRECT
+
+  - name: ➤ Telegram
+    type: select
+    proxies:
+      - Нидерланды 10гбит
+      - Japan 1гбит
+      - DIRECT
+
+  - name: 🤖 AI (Нейронки)
+    type: select
+    proxies:
+      - Нидерланды 10гбит
+      - Japan 1гбит
+      - DIRECT
+
+  - name: 🎵 TikTok
+    type: select
+    proxies:
+      - Нидерланды 10гбит
+      - Japan 1гбит
+      - DIRECT
+
+  - name: 🎮 Roblox
+    type: select
+    proxies:
+      - Нидерланды 10гбит
+      - Japan 1гбит
+      - DIRECT
+
+  - name: ✂️ CapCut & Edits
+    type: select
+    proxies:
+      - Нидерланды 10гбит
+      - Japan 1гбит
+      - DIRECT
+
+  - name: 📋 My Rules
+    type: select
+    proxies:
+      - Нидерланды 10гбит
+      - Japan 1гбит
+      - DIRECT
+
+rule-providers:
+  geosite-youtube:
+    behavior: domain
+    type: http
+    format: mrs
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/youtube.mrs"
+    path: ./rule-sets/youtube.mrs
+    interval: 86400
+
+  geosite-discord:
+    behavior: domain
+    type: http
+    format: mrs
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/discord.mrs"
+    path: ./rule-sets/discord.mrs
+    interval: 86400
+
+  discord_voiceips:
+    behavior: ipcidr
+    type: http
+    format: mrs
+    url: "https://github.com/legiz-ru/mihomo-rule-sets/raw/main/other/discord-voice-ip-list.mrs"
+    path: ./rule-sets/discord_voiceips.mrs
+    interval: 86400
+
+  geosite-instagram:
+    behavior: domain
+    type: http
+    format: mrs
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/instagram.mrs"
+    path: ./rule-sets/instagram.mrs
+    interval: 86400
+
+  geosite-facebook:
+    behavior: domain
+    type: http
+    format: mrs
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/facebook.mrs"
+    path: ./rule-sets/facebook.mrs
+    interval: 86400
+
+  geosite-tiktok:
+    behavior: domain
+    type: http
+    format: yaml
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/tiktok.yaml"
+    path: ./rule-sets/tiktok.yaml
+    interval: 86400
+
+  geosite-roblox:
+    behavior: domain
+    type: http
+    format: yaml
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/roblox.yaml"
+    path: ./rule-sets/roblox.yaml
+    interval: 86400
+
+  telegram-domains:
+    behavior: domain
+    type: http
+    format: mrs
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/telegram.mrs"
+    path: ./rule-sets/telegram-domains.mrs
+    interval: 86400
+
+  telegram-ips:
+    behavior: ipcidr
+    type: http
+    format: mrs
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geoip/telegram.mrs"
+    path: ./rule-sets/telegram-ips.mrs
+    interval: 86400
+
+  geosite-openai:
+    behavior: domain
+    type: http
+    format: mrs
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/openai.mrs"
+    path: ./rule-sets/openai.mrs
+    interval: 86400
+
+  google-gemini:
+    behavior: domain
+    type: http
+    format: mrs
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/google-gemini.mrs"
+    path: ./rule-sets/google-gemini.mrs
+    interval: 86400
+
+  geosite-anthropic:
+    behavior: domain
+    type: http
+    format: mrs
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/anthropic.mrs"
+    path: ./rule-sets/anthropic.mrs
+    interval: 86400
+
+  my-rules:
+    type: http
+    behavior: classical
+    format: yaml
+    url: "https://raw.githubusercontent.com/chm0d777/mihomo-config/main/my-rules.yaml"
+    path: ./rule-sets/my-rules.yaml
+    interval: 86400
+
+rules:
+  # Telegram Dedicated SOCKS5 Proxy (все соединения с порта 1080 идут в группу Telegram)
+  - IN-PORT,1080,➤ Telegram
+
+  # Local
+  - IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
+  - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+  - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
+  - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
+
+  # YouTube & Discord (Сбер по умолчанию)
+  - RULE-SET,geosite-youtube,▶️ YouTube
+  - OR,((RULE-SET,geosite-discord),(RULE-SET,discord_voiceips),(PROCESS-NAME,Discord.exe)),💬 Discord
+
+  # Social Networks
+  - RULE-SET,geosite-instagram,📸 Instagram & Threads
+  - RULE-SET,geosite-facebook,👥 Facebook
+  - OR,((RULE-SET,telegram-ips),(RULE-SET,telegram-domains),(IP-ASN,59930),(DOMAIN,firebaselogging.googleapis.com),(DOMAIN,dns.google.com),(PROCESS-NAME,org.telegram.messenger),(PROCESS-NAME,org.telegram.messenger.web),(PROCESS-NAME,org.telegram.plus),(PROCESS-NAME,org.thunderdog.challegram),(PROCESS-NAME,Telegram.exe),(PROCESS-NAME,Telegram)),➤ Telegram
+  - RULE-SET,geosite-tiktok,🎵 TikTok
+
+  # AI / Нейронки
+  - OR,((RULE-SET,geosite-openai),(RULE-SET,google-gemini),(RULE-SET,geosite-anthropic),(DOMAIN-KEYWORD,grok),(DOMAIN-SUFFIX,grok.com),(DOMAIN-SUFFIX,appcenter.ms),(DOMAIN-KEYWORD,copilot),(DOMAIN-SUFFIX,copilot.microsoft.com)),🤖 AI (Нейронки)
+
+  # Games
+  - RULE-SET,geosite-roblox,🎮 Roblox
+
+  # Edits / CapCut
+  - OR,((DOMAIN-SUFFIX,capcut.com),(DOMAIN-SUFFIX,capcut.net),(DOMAIN-SUFFIX,byteoversea.com),(DOMAIN-SUFFIX,alightmotion.com)),✂️ CapCut & Edits
+
+  # My Rules (Кастомные правила с Github)
+  - RULE-SET,my-rules,📋 My Rules
+
+  # RU Direct (Исключения всегда напрямую после основных правил)
+  - GEOIP,RU,DIRECT
+  - DOMAIN-SUFFIX,ru,DIRECT
+  - DOMAIN-SUFFIX,рф,DIRECT
+  - DOMAIN-SUFFIX,su,DIRECT
+
+  # White-list: Everything else is direct
+  - MATCH,DIRECT
