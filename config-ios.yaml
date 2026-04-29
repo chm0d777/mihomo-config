@@ -1,4 +1,5 @@
 mode: rule
+ipv6: false
 log-level: info
 allow-lan: false
 unified-delay: true
@@ -26,6 +27,7 @@ dns:
   enable: true
   listen: 127.0.0.1:6868
   ipv6: false
+  prefer-ipv4: true
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.0/15
   fake-ip-filter:
@@ -124,14 +126,14 @@ proxy-groups:
       - Japan 1гбит
       - DIRECT
 
-  - name: 🎮 Roblox
+  - name: 👾 Brawl Stars
     type: select
     proxies:
       - Нидерланды 10гбит
       - Japan 1гбит
       - DIRECT
 
-  - name: ✂️ CapCut & Edits
+  - name: 🎮 Roblox
     type: select
     proxies:
       - Нидерланды 10гбит
@@ -144,6 +146,13 @@ proxy-groups:
       - Нидерланды 10гбит
       - Japan 1гбит
       - DIRECT
+
+  - name: 🌐 Остальной трафик (MATCH)
+    type: select
+    proxies:
+      - DIRECT
+      - Нидерланды 10гбит
+      - Japan 1гбит
 
 rule-providers:
   geosite-youtube:
@@ -192,6 +201,14 @@ rule-providers:
     format: yaml
     url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/tiktok.yaml"
     path: ./rule-sets/tiktok.yaml
+    interval: 86400
+
+  geosite-supercell:
+    behavior: domain
+    type: http
+    format: mrs
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/supercell.mrs"
+    path: ./rule-sets/supercell.mrs
     interval: 86400
 
   geosite-roblox:
@@ -274,10 +291,8 @@ rules:
   - OR,((RULE-SET,geosite-openai),(RULE-SET,google-gemini),(RULE-SET,geosite-anthropic),(DOMAIN-KEYWORD,grok),(DOMAIN-SUFFIX,grok.com),(DOMAIN-SUFFIX,appcenter.ms),(DOMAIN-KEYWORD,copilot),(DOMAIN-SUFFIX,copilot.microsoft.com)),🤖 AI (Нейронки)
 
   # Games
+  - RULE-SET,geosite-supercell,👾 Brawl Stars
   - RULE-SET,geosite-roblox,🎮 Roblox
-
-  # Edits / CapCut
-  - OR,((DOMAIN-SUFFIX,capcut.com),(DOMAIN-SUFFIX,capcut.net),(DOMAIN-SUFFIX,byteoversea.com),(DOMAIN-SUFFIX,alightmotion.com)),✂️ CapCut & Edits
 
   # My Rules (Кастомные правила с Github)
   - RULE-SET,my-rules,📋 My Rules
@@ -289,4 +304,4 @@ rules:
   - DOMAIN-SUFFIX,su,DIRECT
 
   # White-list: Everything else is direct
-  - MATCH,DIRECT
+  - MATCH,🌐 Остальной трафик (MATCH)
