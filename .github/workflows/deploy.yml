@@ -13,15 +13,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
+        uses: actions/checkout@v4
 
       - name: Deploy to Server via rsync
-        uses: easingthemes/ssh-deploy@v5.0.0
+        uses: easingthemes/ssh-deploy@v6.0.3
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_CMD_ARGS: "-o StrictHostKeyChecking=accept-new"
           ARGS: "-rltgoDzvO --delete --backup --backup-dir=/var/www/k3k.lol/mihomo_backup"
           SOURCE: "docs/"
           REMOTE_HOST: ${{ secrets.SERVER_IP }}
           REMOTE_USER: ${{ secrets.SERVER_USER }}
           TARGET: "/var/www/k3k.lol/mihomo/"
           EXCLUDE: "/README.md, /README.ru.md, /.git/, /.github/"
+
