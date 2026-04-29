@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mihomo iOS Configurator</title>
+<link rel="stylesheet" href="app/style.css">
+<style>
+  .servers-input {
+    width: 100%;
+    font-family: monospace;
+    font-size: 13px;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    resize: vertical;
+  }
+  .proxy-settings {
+    background: var(--card-bg);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    margin-top: 10px;
+  }
+  .proxy-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <h1 id="app-title">Mihomo iOS Configurator</h1>
+    <p id="app-subtitle">Конструктор конфигурации для iOS/Android на основе шаблона <code>config-ios.yaml</code></p>
+  </header>
+
+  <section class="step-content active" data-step="0">
+    <div class="card">
+      <h2>🇷🇺 Российские серверы</h2>
+      <p class="hint">Вставьте ключи AmneziaWG, VLESS и др. по одному на строку. Эти серверы будут по умолчанию использоваться для <strong>Discord</strong> и <strong>YouTube</strong>.</p>
+      <textarea class="servers-input" id="ru-servers-input" rows="5" placeholder="vless://...&#10;Или содержимое .conf файла AmneziaWG"></textarea>
+      <div style="margin-top: 10px;">
+        <button class="btn btn-primary" onclick="window.addServers('ru')">Добавить серверы</button>
+      </div>
+
+      <div class="card" id="ru-proxy-card" style="display:none; margin-top: 15px; background: var(--bg-color);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h3 style="margin:0; font-size: 16px;">Добавленные серверы (<span id="ru-proxy-count">0</span>)</h3>
+          <button class="btn btn-sm btn-danger" onclick="window.clearServers('ru')">Очистить</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="proxy-table" style="width: 100%; text-align: left;">
+            <thead><tr><th>Имя</th><th>Тип</th><th>Сервер</th><th>Порт</th><th></th></tr></thead>
+            <tbody id="ru-proxy-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🌍 Иностранные серверы</h2>
+      <p class="hint">Эти серверы будут использоваться по умолчанию для <strong>Telegram, Instagram, Нейросетей и всего остального</strong>.</p>
+      <textarea class="servers-input" id="foreign-servers-input" rows="5" placeholder="vless://...&#10;Или содержимое .conf файла AmneziaWG"></textarea>
+      <div style="margin-top: 10px;">
+        <button class="btn btn-primary" onclick="window.addServers('foreign')">Добавить серверы</button>
+      </div>
+
+      <div class="card" id="foreign-proxy-card" style="display:none; margin-top: 15px; background: var(--bg-color);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h3 style="margin:0; font-size: 16px;">Добавленные серверы (<span id="foreign-proxy-count">0</span>)</h3>
+          <button class="btn btn-sm btn-danger" onclick="window.clearServers('foreign')">Очистить</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="proxy-table" style="width: 100%; text-align: left;">
+            <thead><tr><th>Имя</th><th>Тип</th><th>Сервер</th><th>Порт</th><th></th></tr></thead>
+            <tbody id="foreign-proxy-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>✈️ Локальный SOCKS5 Прокси для Telegram</h2>
+      <div class="proxy-settings">
+        <label style="display:flex; align-items:center; gap: 8px; font-weight:600; cursor:pointer;">
+          <input type="checkbox" id="tg-proxy-enabled" checked onchange="document.getElementById('tg-proxy-fields').style.opacity = this.checked ? '1' : '0.5'">
+          Включить Telegram Proxy
+        </label>
+        <p class="hint" style="margin-top: 5px;">Позволяет использовать Telegram даже если VPN заблокировал его напрямую.</p>
+        
+        <div id="tg-proxy-fields" class="proxy-grid">
+          <div class="field">
+            <label class="field-label">Порт</label>
+            <input type="text" class="field-input" id="tg-port" value="1080">
+          </div>
+          <div class="field">
+            <label class="field-label">Логин</label>
+            <input type="text" class="field-input" id="tg-login" value="telegram">
+          </div>
+          <div class="field">
+            <label class="field-label">Пароль</label>
+            <input type="text" class="field-input" id="tg-password" value="telegram">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center; padding: 20px 0;">
+      <button class="btn btn-lg btn-success" id="generate-btn" onclick="window.generateConfigUI()">Сгенерировать config-ios.yaml</button>
+    </div>
+
+    <div class="card" id="result-card" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h3 style="margin:0">Готовый конфиг</h3>
+        <div>
+          <button class="btn btn-sm btn-outline" onclick="window.copyGeneratedConfig()">Копировать</button>
+          <button class="btn btn-sm btn-primary" onclick="window.downloadGeneratedConfig()">Скачать</button>
+        </div>
+      </div>
+      <pre class="preview" id="config-preview"></pre>
+    </div>
+  </section>
+</div>
+
+<div id="toasts"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/js-yaml@4/dist/js-yaml.min.js"></script>
+<!-- Используем оригинальный парсер ключей без изменений -->
+<script src="app/parsers.js"></script>
+<script src="app/generate.js"></script>
+<script src="app/ui.js"></script>
+</body>
+</html>
