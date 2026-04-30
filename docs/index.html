@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mihomo iOS Configurator</title>
+<meta name="robots" content="noindex, nofollow">
+<title>Генератор конфигов Mihomo (Clash Meta)</title>
 <link rel="stylesheet" href="app/style.css">
 <style>
   .servers-input {
@@ -85,15 +86,15 @@
     </div>
 
     <div class="card">
-      <h2>✈️ Локальный SOCKS5 Прокси для Telegram</h2>
+      <h2>✈️ Локальный SOCKS5 Прокси (Дополнительно)</h2>
       <div class="proxy-settings">
         <label style="display:flex; align-items:center; gap: 8px; font-weight:600; cursor:pointer;">
-          <input type="checkbox" id="tg-proxy-enabled" checked onchange="document.getElementById('tg-proxy-fields').style.opacity = this.checked ? '1' : '0.5'">
-          Включить Telegram Proxy
+          <input type="checkbox" id="tg-proxy-enabled" onchange="document.getElementById('tg-proxy-fields').style.opacity = this.checked ? '1' : '0.5'">
+          Включить SOCKS5 Proxy
         </label>
-        <p class="hint" style="margin-top: 5px;">Позволяет использовать Telegram даже если VPN заблокировал его напрямую.</p>
+        <p class="hint" style="margin-top: 5px;">Позволяет подключать отдельные приложения к локальному порту (например, если Telegram не обходит блокировку сам).</p>
         
-        <div id="tg-proxy-fields" class="proxy-grid">
+        <div id="tg-proxy-fields" class="proxy-grid" style="opacity: 0.5;">
           <div class="field">
             <label class="field-label">Порт</label>
             <input type="text" class="field-input" id="tg-port" value="1080">

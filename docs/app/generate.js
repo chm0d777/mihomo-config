@@ -132,6 +132,7 @@ window.generateConfigUI = async function() {
     { name: '🎵 TikTok', primaryIsRu: false },
     { name: '👾 Brawl Stars', primaryIsRu: false },
     { name: '🎮 Roblox', primaryIsRu: false },
+    { name: '🚫 Заблокированные сайты (RU)', primaryIsRu: false },
     { name: '📋 My Rules', primaryIsRu: false },
     { name: '🌐 Остальной трафик (MATCH)', primaryIsRu: false }
   ];
@@ -264,6 +265,14 @@ window.generateConfigUI = async function() {
       url: 'https://raw.githubusercontent.com/chm0d777/mihomo-config/main/my-rules.yaml',
       path: './rule-sets/my-rules.yaml',
       interval: 86400
+    },
+    'ru-blocked': {
+      behavior: 'classical',
+      type: 'http',
+      format: 'yaml',
+      url: 'https://cdn.jsdelivr.net/gh/shvchk/unblock-net/lists/clash/ru-blocked',
+      path: './rule-sets/ru-blocked.yaml',
+      interval: 86400
     }
   };
 
@@ -271,7 +280,7 @@ window.generateConfigUI = async function() {
 
   if (tgEnabled) {
     const port = parseInt(document.getElementById('tg-port').value, 10) || 1080;
-    config['rules'].push(`IN-PORT,${port},➤ Telegram`);
+    config['rules'].push(`IN-PORT,${port},🌐 Остальной трафик (MATCH)`);
   }
 
   config['rules'].push(
@@ -292,6 +301,8 @@ window.generateConfigUI = async function() {
     
     'RULE-SET,geosite-supercell,👾 Brawl Stars',
     'RULE-SET,geosite-roblox,🎮 Roblox',
+    
+    'RULE-SET,ru-blocked,🚫 Заблокированные сайты (RU)',
     
     'RULE-SET,my-rules,📋 My Rules',
     
